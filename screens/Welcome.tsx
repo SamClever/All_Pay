@@ -18,7 +18,11 @@ const Welcome = () => {
   return (
     <SafeAreaView style={[styles.area, { backgroundColor: colors.background }]}>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
+<<<<<<< HEAD
         <Image source={images.logo2 as ImageSourcePropType} resizeMode="contain" style={styles.logo2} />
+=======
+        <Image source={images.logo as ImageSourcePropType} resizeMode="contain" style={styles.logo} />
+>>>>>>> cb2f5a5dbdba8c975dc827eb1df320a8506925c0
         <Text style={[styles.title, { color: colors.text }]}>Welcome Back!</Text>
         <Text style={[styles.subtitle, { color: dark ? COLORS.white : "black" }]}>
           Hello there, personalize your financial journey for maximum returns and peace of mind on AllPay.
@@ -73,6 +77,7 @@ const styles = StyleSheet.create({
     marginTop: -22,
     tintColor: COLORS.primary
   },
+<<<<<<< HEAD
 
   logo2: {
     width: 72,
@@ -81,6 +86,8 @@ const styles = StyleSheet.create({
     marginTop: -22,
     // tintColor: COLORS.primary
   },
+=======
+>>>>>>> cb2f5a5dbdba8c975dc827eb1df320a8506925c0
   title: {
     fontSize: 28,
     fontFamily: "Urbanist Bold",

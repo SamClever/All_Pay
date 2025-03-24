@@ -37,6 +37,10 @@ local.properties
 
 # node.js
 #
+<<<<<<< HEAD
+=======
+node_modules/
+>>>>>>> cb2f5a5dbdba8c975dc827eb1df320a8506925c0
 npm-debug.log
 yarn-error.log
 
