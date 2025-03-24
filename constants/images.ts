@@ -1,4 +1,5 @@
 const logo = require("../assets/images/logo.png") as string;
+const logo2 = require("../assets/images/logo2.png") as string;
 const onboardingSplash = require("../assets/images/onboarding_splash1.png");
 const onboardingSplashDark = require("../assets/images/onboarding_splash1_dark.png");
 const idAvatar = require("../assets/images/id_avatar.png");
@@ -21,6 +22,7 @@ const elipseCard = require("../assets/images/elipse-card.png");
 const rectangleCard = require("../assets/images/rectangle-card.png");
 
 const images = {
+    logo2,
     logo,
     onboardingSplash,
     onboardingSplashDark,
