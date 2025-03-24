@@ -1,8 +1,8 @@
 const logo = require("../assets/images/logo.png") as string;
-<<<<<<< HEAD
+// <<<<<<< HEAD
 const logo2 = require("../assets/images/logo2.png") as string;
-=======
->>>>>>> cb2f5a5dbdba8c975dc827eb1df320a8506925c0
+// =======
+// >>>>>>> cb2f5a5dbdba8c975dc827eb1df320a8506925c0
 const onboardingSplash = require("../assets/images/onboarding_splash1.png");
 const onboardingSplashDark = require("../assets/images/onboarding_splash1_dark.png");
 const idAvatar = require("../assets/images/id_avatar.png");
@@ -25,10 +25,10 @@ const elipseCard = require("../assets/images/elipse-card.png");
 const rectangleCard = require("../assets/images/rectangle-card.png");
 
 const images = {
-<<<<<<< HEAD
+// <<<<<<< HEAD
     logo2,
-=======
->>>>>>> cb2f5a5dbdba8c975dc827eb1df320a8506925c0
+// =======
+// >>>>>>> cb2f5a5dbdba8c975dc827eb1df320a8506925c0
     logo,
     onboardingSplash,
     onboardingSplashDark,

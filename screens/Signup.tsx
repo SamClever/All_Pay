@@ -93,15 +93,9 @@ const Signup = () => {
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.logoContainer}>
             <Image
-<<<<<<< HEAD
               source={images.logo2 as ImageSourcePropType}
               resizeMode='contain'
               style={styles.logo2}
-=======
-              source={images.logo as ImageSourcePropType}
-              resizeMode='contain'
-              style={styles.logo}
->>>>>>> cb2f5a5dbdba8c975dc827eb1df320a8506925c0
             />
           </View>
           <Text style={[styles.title, {
@@ -197,16 +191,12 @@ const styles = StyleSheet.create({
   logo: {
     width: 100,
     height: 100,
-<<<<<<< HEAD
     // tintColor: COLORS.primary
   },
   logo2: {
     width: 100,
     height: 100,
     // tintColor: COLORS.primary
-=======
-    tintColor: COLORS.primary
->>>>>>> cb2f5a5dbdba8c975dc827eb1df320a8506925c0
   },
   logoContainer: {
     alignItems: "center",
