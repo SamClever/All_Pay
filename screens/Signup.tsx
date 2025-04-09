@@ -1,275 +1,265 @@
-import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity, Platform, ImageSourcePropType } from 'react-native';
-import React, { useCallback, useEffect, useReducer, useState } from 'react';
+import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
+  TextInput,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import Checkbox from 'expo-checkbox';
+
 import { COLORS, SIZES, icons, images } from '../constants';
 import Header from '../components/Header';
-import { reducer } from '../utils/reducers/formReducers';
-import { validateInput } from '../utils/actions/formActions';
 import Input from '../components/Input';
-import CheckBox from '@react-native-community/checkbox';
 import Button from '../components/Button';
 import SocialButton from '../components/SocialButton';
 import OrSeparator from '../components/OrSeparator';
 import { useTheme } from '../theme/ThemeProvider';
-import { useNavigation } from '@react-navigation/native';
-import { Image } from 'react-native';
 
-interface InputValues {
-  email: string
-  password: string
-}
+import { reducer } from '../utils/reducers/formReducers';
+import { validateInput } from '../utils/actions/formActions';
 
-interface InputValidities {
-  email: boolean | undefined
-  password: boolean | undefined
-}
+const baseUrl = 'http://192.168.0.124:8000';
 
-interface FormState {
-  inputValues: InputValues
-  inputValidities: InputValidities
-  formIsValid: boolean
-}
+type NavigationProps = {
+  navigate: (screen: string, params?: any) => void;
+};
 
-const initialState: FormState = {
-  inputValues: {
-    email: '',
-    password: '',
-  },
-  inputValidities: {
-    email: false,
-    password: false,
-  },
+const initialState = {
+  inputValues: { email: '', password: '' },
+  inputValidities: { email: false, password: false },
   formIsValid: false,
-}
-
-type Nav = {
-  navigate: (value: string) => void
-}
+};
 
 const Signup = () => {
-  const { navigate } = useNavigation<Nav>();
-  const [formState, dispatchFormState] = useReducer(reducer, initialState);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [isChecked, setChecked] = useState(false);
+  const { navigate } = useNavigation<NavigationProps>();
   const { colors, dark } = useTheme();
 
-  const inputChangedHandler = useCallback(
-    (inputId: string, inputValue: string) => {
-      const result = validateInput(inputId, inputValue)
-      dispatchFormState({
-        inputId,
-        validationResult: result,
-        inputValue,
-      })
-    },
-    [dispatchFormState])
+  const [formState, dispatchFormState] = useReducer(reducer, initialState);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isChecked, setChecked] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const emailRef = useRef<TextInput>(null);
 
   useEffect(() => {
     if (error) {
-      Alert.alert('An error occured', error)
+      Alert.alert('An error occurred', error);
     }
-  }, [error])
+  }, [error]);
 
-  // implementing apple authentication
-  const appleAuthHandler = () => {
-    console.log("Apple Authentication")
-  };
+  const inputChangedHandler = useCallback((inputId: string, inputValue: string) => {
+    const result = validateInput(inputId, inputValue);
+    dispatchFormState({ inputId, validationResult: result, inputValue });
+  }, []);
 
-  // implementing facebook authentication
-  const facebookAuthHandler = () => {
-    console.log("Facebook Authentication")
-  };
+  const registerHandler = async () => {
+    if (!isChecked) {
+      Alert.alert('Error', 'Please accept our Privacy Policy.');
+      return;
+    }
 
-  // Implementing google authentication
-  const googleAuthHandler = () => {
-    console.log("Google Authentication")
+    setIsLoading(true);
+
+    const payload = {
+      email: formState.inputValues.email,
+      password: formState.inputValues.password,
+      terms_accepted: isChecked,
+    };
+
+    try {
+      const response = await fetch(`${baseUrl}/userAuth/register/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        Alert.alert('Registration Error', data.detail || 'Something went wrong');
+      } else {
+        Alert.alert('Success', data.message || 'Registered successfully');
+        navigate('ReasonForUsingAllPay', { email: formState.inputValues.email });
+      }
+    } catch (err: any) {
+      Alert.alert('Network Error', err.message || 'Unable to connect to the server');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <SafeAreaView style={[styles.area, { backgroundColor: colors.background }]}>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <Header title="" />
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={styles.logoContainer}>
-            <Image
-              source={images.logo2 as ImageSourcePropType}
-              resizeMode='contain'
-              style={styles.logo2}
-            />
+        {isLoading && (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="large" color={COLORS.primary} />
           </View>
-          <Text style={[styles.title, {
-            color: dark ? COLORS.white : COLORS.black
-          }]}>Create Your Account</Text>
+        )}
+
+        <Header title="" />
+
+        <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          <View style={styles.logoContainer}>
+            <Image source={images.logo2} resizeMode="contain" style={styles.logo2} />
+          </View>
+
+          <Text style={[styles.title, { color: dark ? COLORS.white : COLORS.black }]}>
+            Create Your Account
+          </Text>
+
           <Input
             id="email"
             onInputChanged={inputChangedHandler}
-            errorText={formState.inputValidities['email']}
+            errorText={!formState.inputValidities.email ? ['Please enter a valid email'] : []}
             placeholder="Email"
+            autoFocus
             placeholderTextColor={dark ? COLORS.grayTie : COLORS.black}
             icon={icons.email}
             keyboardType="email-address"
           />
+
           <Input
-            onInputChanged={inputChangedHandler}
-            errorText={formState.inputValidities['password']}
-            autoCapitalize="none"
             id="password"
+            onInputChanged={inputChangedHandler}
+            errorText={!formState.inputValidities.password ? ['Password must be at least 6 characters'] : []}
+            autoCapitalize="none"
             placeholder="Password"
             placeholderTextColor={dark ? COLORS.grayTie : COLORS.black}
             icon={icons.padlock}
-            secureTextEntry={true}
+            secureTextEntry
           />
+
           <View style={styles.checkBoxContainer}>
-            <View style={{ flexDirection: 'row' }}>
-              <CheckBox
-                style={styles.checkbox}
+            <View style={styles.checkboxRow}>
+              <Checkbox
                 value={isChecked}
-                boxType="square"
-                onTintColor={isChecked ? COLORS.primary : dark ? COLORS.primary : "gray"}
-                onFillColor={isChecked ? COLORS.primary : dark ? COLORS.primary : "gray"}
-                onCheckColor={COLORS.white}
                 onValueChange={setChecked}
-                tintColors={{ true: COLORS.primary, false: "gray" }}
+                style={styles.checkbox}
               />
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.privacy, {
-                  color: dark ? COLORS.white : COLORS.black
-                }]}>By continuing you accept our Privacy Policy</Text>
-              </View>
+              <Text style={[styles.privacy, { color: dark ? COLORS.white : COLORS.black }]}>
+                By continuing you accept our Privacy Policy
+              </Text>
             </View>
+            <Text style={styles.debugText}>
+              Terms Accepted: {isChecked ? 'True' : 'False'}
+            </Text>
           </View>
-          <Button
-            title="Sign Up"
-            filled
-            onPress={() => navigate("ReasonForUsingAllPay")}
-            style={styles.button}
-          />
-          <View>
-            <OrSeparator text="or continue with" />
-            <View style={styles.socialBtnContainer}>
-              <SocialButton
-                icon={icons.appleLogo}
-                onPress={appleAuthHandler}
-                tintColor={dark ? COLORS.white : COLORS.black}
-              />
-              <SocialButton
-                icon={icons.facebook}
-                onPress={facebookAuthHandler}
-              />
-              <SocialButton
-                icon={icons.google}
-                onPress={googleAuthHandler}
-              />
-            </View>
+
+          <Button title="Sign Up" filled onPress={registerHandler} style={styles.button} />
+
+          <OrSeparator text="or continue with" />
+
+          <View style={styles.socialBtnContainer}>
+            <SocialButton icon={icons.appleLogo} onPress={() => console.log('Apple Auth')} />
+            <SocialButton icon={icons.facebook} onPress={() => console.log('Facebook Auth')} />
+            <SocialButton icon={icons.google} onPress={() => console.log('Google Auth')} />
           </View>
         </ScrollView>
+
         <View style={styles.bottomContainer}>
-          <Text style={[styles.bottomLeft, {
-            color: dark ? COLORS.white : COLORS.black
-          }]}>Already have an account ?</Text>
-          <TouchableOpacity
-            onPress={() => navigate("Login")}>
-            <Text style={styles.bottomRight}>{" "}Sign In</Text>
+          <Text style={[styles.bottomLeft, { color: dark ? COLORS.white : COLORS.black }]}>
+            Already have an account?
+          </Text>
+          <TouchableOpacity onPress={() => navigate('Login')}>
+            <Text style={styles.bottomRight}> Sign In</Text>
           </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>
-  )
+  );
 };
 
 const styles = StyleSheet.create({
   area: {
     flex: 1,
-    backgroundColor: COLORS.white
+    backgroundColor: COLORS.white,
   },
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: COLORS.white
-  },
-  logo: {
-    width: 100,
-    height: 100,
-    // tintColor: COLORS.primary
+    backgroundColor: COLORS.white,
   },
   logo2: {
     width: 100,
     height: 100,
-    // tintColor: COLORS.primary
   },
   logoContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    marginVertical: 32
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 32,
   },
   title: {
     fontSize: 28,
-    fontFamily: "Urbanist Bold",
-    color: COLORS.black,
-    textAlign: "center",
-    marginBottom: 12
-  },
-  center: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    fontFamily: 'Urbanist Bold',
+    textAlign: 'center',
+    marginBottom: 12,
   },
   checkBoxContainer: {
-    flexDirection: "row",
-    justifyContent: 'space-between',
+    marginVertical: 12,
+    width: '100%',
+  },
+  checkboxRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 18,
+    justifyContent: 'flex-start',
+    marginVertical: 8,
   },
   checkbox: {
-    marginRight: Platform.OS == "ios" ? 8 : 14,
-    marginLeft: 4,
-    height: 16,
-    width: 16,
-    borderColor: COLORS.primary,
+    marginRight: 8,
   },
   privacy: {
-    fontSize: 12,
-    fontFamily: "Urbanist Regular",
-    color: COLORS.black,
+    fontSize: 14,
+    fontFamily: 'Urbanist Regular',
   },
-  socialTitle: {
-    fontSize: 19.25,
-    fontFamily: "Urbanist Medium",
-    color: COLORS.black,
-    textAlign: "center",
-    marginVertical: 26
+  debugText: {
+    fontSize: 12,
+    color: COLORS.gray,
+    marginTop: 4,
   },
   socialBtnContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   bottomContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginVertical: 18,
-    position: "absolute",
+    position: 'absolute',
     bottom: 12,
     right: 0,
     left: 0,
   },
   bottomLeft: {
     fontSize: 14,
-    fontFamily: "Urbanist Regular",
-    color: "black"
+    fontFamily: 'Urbanist Regular',
   },
   bottomRight: {
     fontSize: 16,
-    fontFamily: "Urbanist Medium",
-    color: COLORS.primary
+    fontFamily: 'Urbanist Medium',
+    color: COLORS.primary,
   },
   button: {
     marginVertical: 6,
     width: SIZES.width - 32,
-    borderRadius: 30
-  }
-})
+    borderRadius: 30,
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+});
 
-export default Signup
+export default Signup;
