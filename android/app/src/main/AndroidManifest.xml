@@ -2,13 +2,22 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.allpay">
 
-    <!-- All permissions go before <application> -->
+    <!-- Required Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <!-- Legacy storage permission (Android 12 & below) -->
+
+    <!-- Storage Permissions -->
+    <!-- For Android 12 and below -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <!-- Scoped images permission (Android 13+) -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
+    <!-- For Android 13+ -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
+    <!-- Camera Features (set required to false to support more devices) -->
+    <uses-feature android:name="android.hardware.camera.any" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.front" android:required="false" />
 
     <application
         android:name=".MainApplication"
@@ -19,7 +28,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <!-- e.g. Google Maps API key -->
+        <!-- Example metadata (e.g., for Google Maps) -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="Your Google maps API Key Here" />

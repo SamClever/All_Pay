@@ -1,115 +1,134 @@
-import { View, Text, StyleSheet } from 'react-native';
-import React from 'react';
+// screens/SelfieWithIdCard.tsx
+
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Alert,
+  Image,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScrollView } from 'react-native-virtualized-view';
+import { launchCamera, launchImageLibrary, Asset } from 'react-native-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../theme/ThemeProvider';
-import { COLORS, SIZES, images } from '../constants';
-import { Image } from 'react-native';
-import Button from '../components/Button';
+import { COLORS, SIZES } from '../constants';
 import Header from '../components/Header';
+import Button from '../components/Button';
 
-type Nav = {
-  navigate: (value: string) => void
-}
+type Nav = { navigate: (screen: string, params?: any) => void };
 
-// Selfie with ID Screen
-const SelfieWithIdCard = () => {
+const SelfieWithIdCard: React.FC = () => {
   const { navigate } = useNavigation<Nav>();
   const { colors, dark } = useTheme();
 
+  const [capturedUri, setCapturedUri] = useState<string | null>(null);
+
+  const openCamera = async () => {
+    const result = await launchCamera({
+      mediaType: 'photo',
+      cameraType: 'front',
+      saveToPhotos: false,
+    });
+
+    if (result.didCancel) return;
+    if (result.errorMessage) {
+      return Alert.alert('Camera Error', result.errorMessage);
+    }
+
+    const photo: Asset | undefined = result.assets?.[0];
+    if (photo?.uri) setCapturedUri(photo.uri);
+  };
+
+  const openGallery = async () => {
+    const result = await launchImageLibrary({
+      mediaType: 'photo',
+    });
+
+    if (result.didCancel) return;
+    if (result.errorMessage) {
+      return Alert.alert('Gallery Error', result.errorMessage);
+    }
+
+    const image: Asset | undefined = result.assets?.[0];
+    if (image?.uri) setCapturedUri(image.uri);
+  };
+
+  const handleContinue = () => {
+    if (!capturedUri) {
+      return Alert.alert('Image Required', 'Please select or take a photo.');
+    }
+    navigate('FillYourProfile', { selfieUri: capturedUri });
+  };
+
   return (
     <SafeAreaView style={[styles.area, { backgroundColor: colors.background }]}>
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <Header title="" />
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <Text style={[styles.title, {
-            color: dark ? COLORS.white : COLORS.greyscale900
-          }]}>Selfie with ID Card</Text>
-          <Text style={[styles.subtitle, {
-            color: dark ? COLORS.white : COLORS.greyscale900
-          }]}>Please face the camera holding your ID card.</Text>
-          <View>
-            <Image
-              source={images.avatar}
-              resizeMode='contain'
-              style={styles.avatar}
-            />
+      <Header title="Selfie with ID" />
+
+      <View style={styles.previewContainer}>
+        {capturedUri ? (
+          <Image source={{ uri: capturedUri }} style={styles.preview} />
+        ) : (
+          <View style={styles.placeholder}>
+            <Text style={{ color: dark ? COLORS.white : COLORS.greyscale700 }}>
+              No image selected
+            </Text>
           </View>
-        </ScrollView>
+        )}
       </View>
+
+      <Text
+        style={[styles.instruction, { color: dark ? COLORS.white : COLORS.greyscale900 }]}
+      >
+        {capturedUri
+          ? 'Review your selfie with ID. Retake if needed.'
+          : 'Tap below to take or select a selfie with your ID.'}
+      </Text>
+
       <View style={styles.bottomContainer}>
-        <Button
-          title="Retake"
-          style={{
-            width: (SIZES.width - 32) / 2 - 8,
-            borderRadius: 32,
-            backgroundColor: dark ? COLORS.dark3 : COLORS.tansparentPrimary,
-            borderColor: dark ? COLORS.dark3 : COLORS.tansparentPrimary
-          }}
-          textColor={dark ? COLORS.white : COLORS.primary}
-        />
-        <Button
-          title="Continue"
-          filled
-          style={styles.continueButton}
-          onPress={() => navigate("FillYourProfile")}
-        />
+        <Button title="Take Selfie" onPress={openCamera} />
+        <Button title="Choose from Gallery" onPress={openGallery} />
+        <Button title="Continue" filled onPress={handleContinue} disabled={!capturedUri} />
       </View>
     </SafeAreaView>
-  )
+  );
 };
 
 const styles = StyleSheet.create({
-  area: {
+  area: { flex: 1 },
+  previewContainer: {
     flex: 1,
-    backgroundColor: COLORS.white
+    margin: 16,
+    borderWidth: 4,
+    borderColor: COLORS.primary,
+    borderRadius: 12,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: COLORS.white
+  placeholder: {
+    width: SIZES.width - 32,
+    height: SIZES.width - 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#2d2d2d',
+    borderRadius: 12,
   },
-  title: {
-    fontSize: 28,
-    fontFamily: "Urbanist Bold",
-    color: COLORS.greyscale900,
-    textAlign: "center",
-    marginVertical: 22
+  preview: {
+    width: SIZES.width - 32,
+    height: SIZES.width - 32,
+    resizeMode: 'cover',
   },
-  subtitle: {
+  instruction: {
     fontSize: 16,
-    fontFamily: "Urbanist Regular",
-    color: COLORS.greyscale900,
-    textAlign: "center",
-    paddingHorizontal: 3
-  },
-  avatar: {
-    height: 570,
-    width: SIZES.width - 32
+    textAlign: 'center',
+    marginVertical: 12,
+    fontFamily: 'Urbanist Regular',
   },
   bottomContainer: {
-    position: "absolute",
-    bottom: 32,
-    right: 16,
-    left: 16,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: SIZES.width - 32,
-    alignItems: "center"
+    gap: 10,
+    padding: 16,
   },
-  skipButton: {
-    width: (SIZES.width - 32) / 2 - 8,
-    borderRadius: 32,
-    backgroundColor: "#F5E7FF",
-    borderColor: "#F5E7FF"
-  },
-  continueButton: {
-    width: (SIZES.width - 32) / 2 - 8,
-    borderRadius: 32,
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary
-  },
-})
+});
 
-export default SelfieWithIdCard
+export default SelfieWithIdCard;

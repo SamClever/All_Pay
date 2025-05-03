@@ -38,7 +38,7 @@
     "react-native-pager-view": "^6.7.0",
     "react-native-picker-select": "^9.3.1",
     "react-native-raw-bottom-sheet": "^3.0.0",
-    "react-native-reanimated": "^3.17.0",
+    "react-native-reanimated": "^3.17.5",
     "react-native-safe-area-context": "^5.2.0",
     "react-native-screens": "^4.9.1",
     "react-native-svg": "^15.11.2",
@@ -46,7 +46,8 @@
     "react-native-vector-icons": "^10.2.0",
     "react-native-virtualized-view": "^1.0.0",
     "react-native-vision-camera": "^4.6.4",
-    "validate.js": "^0.13.1"
+    "validate.js": "^0.13.1",
+    "vision-camera-face-detector": "^0.1.8"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
