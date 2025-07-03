@@ -11,7 +11,11 @@ def jscFlavor = "io.github.react-native-community:jsc-android:2026004.+"
 
 project.ext.react = [
     entryFile: "index.js",
+<<<<<<< HEAD
     enableHermes: false  // set true to enable Hermes
+=======
+    enableHermes: false  // set to true to enable Hermes
+>>>>>>> fix-old-version
 ]
 
 react {
@@ -29,19 +33,32 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+
+        // Optional: Enable multidex if needed
+        // multiDexEnabled true
     }
 
     ndkVersion rootProject.ext.ndkVersion
 
+<<<<<<< HEAD
     // ─── Java & Kotlin compatibility ─────────────────────────────────────────────
+=======
+>>>>>>> fix-old-version
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+<<<<<<< HEAD
     kotlinOptions {
         jvmTarget = "17"
     }
     // ───────────────────────────────────────────────────────────────────────────────
+=======
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+>>>>>>> fix-old-version
 
     signingConfigs {
         debug {
@@ -55,22 +72,47 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+<<<<<<< HEAD
             applicationIdSuffix ".debug"
             versionNameSuffix "-DEBUG"
+=======
+>>>>>>> fix-old-version
             minifyEnabled false
         }
         release {
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
+<<<<<<< HEAD
+
+    packagingOptions {
+        resources.excludes += ["/META-INF/{AL2.0,LGPL2.1}"]
+=======
 
     packagingOptions {
         resources.excludes += ["/META-INF/{AL2.0,LGPL2.1}"]
     }
 }
 
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+
+    // Use react-native meta package
+    implementation "com.facebook.react:react-native:+"
+
+    if (project.ext.react.get("enableHermes", false)) {
+        implementation "com.facebook.react:hermes-android"
+    } else {
+        implementation jscFlavor
+>>>>>>> fix-old-version
+    }
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+}
+
+<<<<<<< HEAD
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.facebook.react:react-android"
@@ -83,4 +125,7 @@ dependencies {
 }
 
 // Custom fonts (if any)
+=======
+// Optional: Load custom fonts from vector icons
+>>>>>>> fix-old-version
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
